@@ -91,20 +91,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                     try
                     {
                         /*Start RND Code*/
-                        // Ensure message text is set for notification title
-                        if (string.IsNullOrEmpty(message.Text) && message.Attachments?.Count > 0)
-                        {
-                            // Extract title from Adaptive Card if present
-                            var adaptiveCard = message.Attachments[0].Content as dynamic;
-                            if (adaptiveCard?.title != null)
-                            {
-                                message.Text = $"📢 {adaptiveCard.title}";  // Adding emoji for attention
-                            }
-                            else
-                            {
-                                message.Text = "📢 New Notification";  // Fallback text
-                            }
-                        }
+
+                        message.Text = "**📢 Important Announcement**\nYour actual message content here.";
 
                         /*End the RND Code*/
 
