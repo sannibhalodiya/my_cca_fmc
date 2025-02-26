@@ -90,6 +90,25 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                     var policy = this.GetRetryPolicy(maxAttempts, log);
                     try
                     {
+                        /*Start RND Code*/
+                        // Ensure message text is set for notification title
+                        if (string.IsNullOrEmpty(message.Text) && message.Attachments?.Count > 0)
+                        {
+                            // Extract title from Adaptive Card if present
+                            var adaptiveCard = message.Attachments[0].Content as dynamic;
+                            if (adaptiveCard?.title != null)
+                            {
+                                message.Text = $"📢 {adaptiveCard.title}";  // Adding emoji for attention
+                            }
+                            else
+                            {
+                                message.Text = "📢 New Notification";  // Fallback text
+                            }
+                        }
+
+                        /*End the RND Code*/
+
+
                         // Send message.
                         await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(message));
 
