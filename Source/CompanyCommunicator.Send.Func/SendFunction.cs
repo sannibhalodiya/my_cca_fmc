@@ -164,6 +164,16 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                 }
 
                 // Send message.
+               
+                var custome = await this.GetMessageActivity_Custom(messageContent, log);
+                var response1 = await this.messageService.SendMessageAsync(
+                    message: custome,
+                    serviceUrl: messageContent.GetServiceUrl(),
+                    conversationId: messageContent.GetConversationId(),
+                    maxAttempts: this.maxNumberOfAttempts,
+                    logger: log);
+
+
                 var messageActivity = await this.GetMessageActivity(messageContent, log);
                 var response = await this.messageService.SendMessageAsync(
                     message: messageActivity,
@@ -277,6 +287,41 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
             };
 
             return MessageFactory.Attachment(adaptiveCardAttachment);
+
+            //var messageActivity = MessageFactory.Attachment(adaptiveCardAttachment);
+            //messageActivity.Text = "Notification Title....";
+
+            //return messageActivity;
+        }
+
+
+        private async Task<IMessageActivity> GetMessageActivity_Custom(SendQueueMessageContent message, ILogger log)
+        {
+            var cacheKeySentCard = CachePrefixSentCards + message.NotificationId;
+            bool isCacheEntryExists = this.memoryCache.TryGetValue(cacheKeySentCard, out string jsonAC);
+
+            if (!isCacheEntryExists)
+            {
+                // Download serialized AC from blob storage.
+                jsonAC = await this.notificationRepo.GetAdaptiveCardAsync(message.NotificationId);
+                this.memoryCache.Set(cacheKeySentCard, jsonAC, TimeSpan.FromHours(Constants.CacheDurationInHours));
+
+                log.LogInformation($"Successfully cached the sent card data." +
+                                $"\nNotificationId Id: {message.NotificationId}");
+            }
+
+            var adaptiveCardAttachment = new Attachment()
+            {
+                ContentType = AdaptiveCardContentType,
+                Content = JsonConvert.DeserializeObject(jsonAC),
+            };
+
+            return MessageFactory.Text("Custome Notification Title.....");
+
+            //var messageActivity = MessageFactory.Attachment(adaptiveCardAttachment);
+            //messageActivity.Text = "Notification Title....";
+
+            //return messageActivity;
         }
     }
 }
