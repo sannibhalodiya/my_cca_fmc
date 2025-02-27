@@ -14,6 +14,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
     using Microsoft.Extensions.Options;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Adapter;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.CommonBot;
+    using Newtonsoft.Json;
     using Polly;
     using Polly.Contrib.WaitAndRetry;
     using Polly.Retry;
@@ -97,19 +98,30 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
 
                         if (message.Attachments != null && message.Attachments.Count > 0)
                         {
-                            var adaptiveCard = message.Attachments[0].Content as dynamic;
+                            // Extract Adaptive Card JSON
+                            var adaptiveCardJson = JsonConvert.SerializeObject(message.Attachments[0].Content);
+                            log.LogInformation($"Adaptive Card JSON: {adaptiveCardJson}");
+
+                            dynamic adaptiveCard = JsonConvert.DeserializeObject(adaptiveCardJson);
+
+                            string notificationTitle = "📢 New Notification"; // Default Title
+
+                            // Check if the title exists in the Adaptive Card JSON
                             if (adaptiveCard?.title != null)
                             {
-                                message.Text = $"📢 {adaptiveCard.title}";  // Adding emoji for attention
+                                notificationTitle = $"📢 {adaptiveCard.title}";
                             }
-                            else
+                            else if (adaptiveCard?.body != null && adaptiveCard.body.Count > 0)
                             {
-                                message.Text = "📢 New Notification";  // Fallback text
+                                // Try fetching from body if it's a text block
+                                notificationTitle = $"📢 {adaptiveCard.body[0].text}";
                             }
+
+                            message.Text = notificationTitle; // Set message text dynamically
                         }
                         else
                         {
-                            message.Text = "📢 New Notification";  // Fallback text if no attachment
+                            message.Text = "📢 New Notification"; // Fallback text
                         }
 
                         /*End the RND Code*/
