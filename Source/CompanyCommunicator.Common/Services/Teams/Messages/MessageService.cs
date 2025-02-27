@@ -92,16 +92,65 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                     var policy = this.GetRetryPolicy(maxAttempts, log);
                     try
                     {
-                        /*Start RND Code*/
-
-                        message.Text = "**📢 Important Announcement**\nYour actual message content here.";
                         log.LogInformation($"Attachments count: {message.Attachments?.Count ?? 0}");
-                        /*End the RND Code*/
 
-                        // Send message.
-                        await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(message));
+                        string notificationTitle = "📢 New Notification"; // Default title
 
-                        // Success.
+                        if (message.Attachments != null && message.Attachments.Count > 0)
+                        {
+                            // Extract Adaptive Card JSON
+                            var adaptiveCardJson = JsonConvert.SerializeObject(message.Attachments[0].Content);
+                            log.LogInformation($"Adaptive Card JSON: {adaptiveCardJson}");
+
+                            dynamic adaptiveCard = JsonConvert.DeserializeObject(adaptiveCardJson);
+
+                            // Extract Notification Title
+                            if (adaptiveCard?.title != null)
+                            {
+                                notificationTitle = $"📢 {adaptiveCard.title}";
+                            }
+                            else if (adaptiveCard?.body != null && adaptiveCard.body.Count > 0)
+                            {
+                                notificationTitle = $"📢 {adaptiveCard.body[0].text}";
+                            }
+                        }
+
+                        // ✅ 1. Send only the title message (popup notification)
+                        var notificationMessage = new Activity
+                        {
+                            Type = ActivityTypes.Message,
+                            Text = notificationTitle,
+                            Summary = notificationTitle, // Ensures the title appears in the popup
+                            ChannelData = new
+                            {
+                                Notification = new
+                                {
+                                    Alert = true, // Ensures only this message triggers the popup
+                                    Text = notificationTitle
+                                }
+                            }
+                        };
+
+                        await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(notificationMessage));
+
+                        // ✅ 2. Send the full message (without triggering another popup)
+                        if (message.Attachments != null && message.Attachments.Count > 0)
+                        {
+                            var adaptiveCardMessage = MessageFactory.Attachment(message.Attachments[0]);
+                            adaptiveCardMessage.Summary = notificationTitle; // Summary shown in Teams
+                            adaptiveCardMessage.ChannelData = new
+                            {
+                                Notification = new
+                                {
+                                    Alert = false, // Prevents a second popup
+                                    ExternalResourceUrl = "https://teams.microsoft.com/l/chat/0/0?users=<USER_EMAIL>" // Opens chat on click
+                                }
+                            };
+
+                            await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(adaptiveCardMessage));
+                        }
+
+                        // ✅ Success response
                         response.ResultType = SendMessageResult.Succeeded;
                         response.StatusCode = (int)HttpStatusCode.Created;
                         response.AllSendStatusCodes += $"{(int)HttpStatusCode.Created},";
