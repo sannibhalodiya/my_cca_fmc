@@ -92,7 +92,18 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                     {
                         /*Start RND Code*/
 
-                        message.Text = "**📢 Important Announcement**\nYour actual message content here.";
+                        //message.Text = "**📢 Important Announcement**\nYour actual message content here.";
+
+
+                        var adaptiveCard = message.Attachments[0].Content as dynamic;
+                        if (adaptiveCard?.title != null)
+                        {
+                            message.Text = $"📢 {adaptiveCard.title}";  // Adding emoji for attention
+                        }
+                        else
+                        {
+                            message.Text = "📢 New Notification";  // Fallback text
+                        }
 
                         /*End the RND Code*/
 
