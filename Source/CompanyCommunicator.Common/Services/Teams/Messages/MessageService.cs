@@ -115,17 +115,17 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             }
                         }
 
-                        // ✅ 1. Send only the title message (popup notification)
+                        // ✅ 1. Send Title Notification (Triggers a popup)
                         var notificationMessage = new Activity
                         {
                             Type = ActivityTypes.Message,
                             Text = notificationTitle,
-                            Summary = notificationTitle, // Ensures the title appears in the popup
+                            Summary = notificationTitle, // Ensures title appears in the popup
                             ChannelData = new
                             {
                                 Notification = new
                                 {
-                                    Alert = true, // Ensures only this message triggers the popup
+                                    Alert = true, // ✅ This triggers a popup only for the title
                                     Text = notificationTitle
                                 }
                             }
@@ -133,7 +133,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
 
                         await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(notificationMessage));
 
-                        // ✅ 2. Send the full message (without triggering another popup)
+                        // ✅ 2. Send Full Message (No popup, only appears in chat)
                         if (message.Attachments != null && message.Attachments.Count > 0)
                         {
                             var adaptiveCardMessage = MessageFactory.Attachment(message.Attachments[0]);
@@ -142,11 +142,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             {
                                 Notification = new
                                 {
-                                    Alert = false, // Prevents a second popup
-                                    ExternalResourceUrl = "https://teams.microsoft.com/l/chat/0/0?users=<USER_EMAIL>" // Opens chat on click
+                                    //Alert = false // 🚫 Prevents this message from triggering a second popup
+                                    Notification = (object)null
                                 }
                             };
 
+                            await Task.Delay(1000); // 👈 Slight delay to prevent Teams from showing two popups
                             await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(adaptiveCardMessage));
                         }
 
