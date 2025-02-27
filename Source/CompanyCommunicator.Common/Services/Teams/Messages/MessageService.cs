@@ -93,16 +93,23 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                         /*Start RND Code*/
 
                         //message.Text = "**📢 Important Announcement**\nYour actual message content here.";
+                        log.LogInformation($"Attachments count: {message.Attachments?.Count ?? 0}");
 
-
-                        var adaptiveCard = message.Attachments[0].Content as dynamic;
-                        if (adaptiveCard?.title != null)
+                        if (message.Attachments != null && message.Attachments.Count > 0)
                         {
-                            message.Text = $"📢 {adaptiveCard.title}";  // Adding emoji for attention
+                            var adaptiveCard = message.Attachments[0].Content as dynamic;
+                            if (adaptiveCard?.title != null)
+                            {
+                                message.Text = $"📢 {adaptiveCard.title}";  // Adding emoji for attention
+                            }
+                            else
+                            {
+                                message.Text = "📢 New Notification";  // Fallback text
+                            }
                         }
                         else
                         {
-                            message.Text = "📢 New Notification";  // Fallback text
+                            message.Text = "📢 New Notification";  // Fallback text if no attachment
                         }
 
                         /*End the RND Code*/
