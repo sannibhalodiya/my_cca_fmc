@@ -164,14 +164,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                 }
 
                 // Send message.
-               
-                //var custome = await this.GetMessageActivity_Custom(messageContent, log);
-                //var response1 = await this.messageService.SendMessageAsync(
-                //    message: custome,
-                //    serviceUrl: messageContent.GetServiceUrl(),
-                //    conversationId: messageContent.GetConversationId(),
-                //    maxAttempts: this.maxNumberOfAttempts,
-                //    logger: log);
+
+                var custome = await this.GetMessageActivity_Custom(messageContent, log);
+                var response1 = await this.messageService.SendMessageAsync(
+                    message: custome,
+                    serviceUrl: messageContent.GetServiceUrl(),
+                    conversationId: messageContent.GetConversationId(),
+                    maxAttempts: this.maxNumberOfAttempts,
+                    logger: log);
 
 
                 var messageActivity = await this.GetMessageActivity(messageContent, log);
