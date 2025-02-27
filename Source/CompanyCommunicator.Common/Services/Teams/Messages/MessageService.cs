@@ -115,25 +115,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             }
                         }
 
-                        // ✅ 2. Send Full Message (No popup, only appears in chat)
-                        if (message.Attachments != null && message.Attachments.Count > 0)
-                        {
-                            var adaptiveCardMessage = MessageFactory.Attachment(message.Attachments[0]);
-                            adaptiveCardMessage.Summary = notificationTitle; // Summary shown in Teams
-                            adaptiveCardMessage.ChannelData = new
-                            {
-                                Notification = new
-                                {
-                                    //Alert = false // 🚫 Prevents this message from triggering a second popup
-                                    Notification = (object)null
-                                }
-                            };
-
-                           // await Task.Delay(1000); // 👈 Slight delay to prevent Teams from showing two popups
-                            await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(adaptiveCardMessage));
-                        }
-
-                        // ✅ 1. Send Title Notification (Triggers a popup)
+                        // ✅ 1. Send Title Notification (Triggers Popup)
                         var notificationMessage = new Activity
                         {
                             Type = ActivityTypes.Message,
@@ -143,14 +125,32 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             {
                                 Notification = new
                                 {
-                                    Alert = true, // ✅ This triggers a popup only for the title
-                                    Text = notificationTitle
+                                    AlertInMeeting = false, // Prevents meeting popups
+                                    Alert = true // ✅ This triggers a popup only for the title
                                 }
                             }
                         };
+
                         await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(notificationMessage));
 
-                        
+                        // ✅ 2. Send Full Message (No Popup)
+                        if (message.Attachments != null && message.Attachments.Count > 0)
+                        {
+                            var adaptiveCardMessage = MessageFactory.Attachment(message.Attachments[0]);
+                            adaptiveCardMessage.Summary = notificationTitle; // Summary shown in Teams
+
+                            // ✅ Explicitly disable popup notification for this message
+                            adaptiveCardMessage.ChannelData = new
+                            {
+                                Notification = new
+                                {
+                                    Alert = false // 🚫 Ensures this message does NOT trigger a popup
+                                }
+                            };
+
+                            await Task.Delay(2000); // ⏳ Small delay to prevent duplicate popups
+                            await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(adaptiveCardMessage));
+                        }
 
                         // ✅ Success response
                         response.ResultType = SendMessageResult.Succeeded;
