@@ -132,25 +132,25 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                         };
 
                         await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(notificationMessage));
+                        await Task.Delay(5000);
+                        //// ✅ 2. Send Full Message (No Popup)
+                        //if (message.Attachments != null && message.Attachments.Count > 0)
+                        //{
+                        //    var adaptiveCardMessage = MessageFactory.Attachment(message.Attachments[0]);
+                        //    adaptiveCardMessage.Summary = notificationTitle; // Summary shown in Teams
 
-                        // ✅ 2. Send Full Message (No Popup)
-                        if (message.Attachments != null && message.Attachments.Count > 0)
-                        {
-                            var adaptiveCardMessage = MessageFactory.Attachment(message.Attachments[0]);
-                            adaptiveCardMessage.Summary = notificationTitle; // Summary shown in Teams
+                        //    // ✅ Explicitly disable popup notification for this message
+                        //    adaptiveCardMessage.ChannelData = new
+                        //    {
+                        //        Notification = new
+                        //        {
+                        //            Alert = false // 🚫 Ensures this message does NOT trigger a popup
+                        //        }
+                        //    };
 
-                            // ✅ Explicitly disable popup notification for this message
-                            adaptiveCardMessage.ChannelData = new
-                            {
-                                Notification = new
-                                {
-                                    Alert = false // 🚫 Ensures this message does NOT trigger a popup
-                                }
-                            };
-
-                            await Task.Delay(2000); // ⏳ Small delay to prevent duplicate popups
-                            await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(adaptiveCardMessage));
-                        }
+                        //    await Task.Delay(2000); // ⏳ Small delay to prevent duplicate popups
+                        //    await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(adaptiveCardMessage));
+                        //}
 
                         // ✅ Success response
                         response.ResultType = SendMessageResult.Succeeded;
