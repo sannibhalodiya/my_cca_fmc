@@ -115,24 +115,24 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             }
                         }
 
-                        // ✅ 1. Send Title Notification (Triggers Popup)
-                        var notificationMessage = new Activity
-                        {
-                            Type = ActivityTypes.Message,
-                            Text = notificationTitle,
-                            Summary = notificationTitle, // Ensures title appears in the popup
-                            ChannelData = new
-                            {
-                                Notification = new
-                                {
-                                    AlertInMeeting = false, // Prevents meeting popups
-                                    Alert = true // ✅ This triggers a popup only for the title
-                                }
-                            }
-                        };
+                        //// ✅ 1. Send Title Notification (Triggers Popup)
+                        //var notificationMessage = new Activity
+                        //{
+                        //    Type = ActivityTypes.Message,
+                        //    Text = notificationTitle,
+                        //    Summary = notificationTitle, // Ensures title appears in the popup
+                        //    ChannelData = new
+                        //    {
+                        //        Notification = new
+                        //        {
+                        //            AlertInMeeting = false, // Prevents meeting popups
+                        //            Alert = true // ✅ This triggers a popup only for the title
+                        //        }
+                        //    }
+                        //};
 
-                        await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(notificationMessage));
-                        await Task.Delay(5000);
+                        //await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(notificationMessage));
+                        //await Task.Delay(5000);
                         //// ✅ 2. Send Full Message (No Popup)
                         if (message.Attachments != null && message.Attachments.Count > 0)
                         {
