@@ -107,11 +107,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             // Extract Notification Title
                             if (adaptiveCard?.title != null)
                             {
-                                notificationTitle = $"📢 {adaptiveCard.title}";
+                                notificationTitle = $"📢 {adaptiveCard.title} - Custom Title";
                             }
                             else if (adaptiveCard?.body != null && adaptiveCard.body.Count > 0)
                             {
-                                notificationTitle = $"📢 {adaptiveCard.body[0].text}";
+                                notificationTitle = $"📢 {adaptiveCard.body[0].text}  - Custom Title";
                             }
                         }
 
