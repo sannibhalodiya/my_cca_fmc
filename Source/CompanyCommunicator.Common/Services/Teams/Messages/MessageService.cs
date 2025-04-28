@@ -107,12 +107,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                             // Extract Notification Title
                             if (adaptiveCard?.title != null)
                             {
-                                notificationTitle = $"📢 {adaptiveCard.title} - Custom Title";
+                                notificationTitle = $"📢 {adaptiveCard.title}";
                             }
                             else if (adaptiveCard?.body != null && adaptiveCard.body.Count > 0)
                             {
-                                notificationTitle = $"📢 {adaptiveCard.body[0].text}  - Custom Title";
+                                notificationTitle = $"📢 {adaptiveCard.body[0].text}";
                             }
+
+                            log.LogInformation($"Notification: {notificationTitle}");
                         }
 
                         //// ✅ 1. Send Title Notification (Triggers Popup)
