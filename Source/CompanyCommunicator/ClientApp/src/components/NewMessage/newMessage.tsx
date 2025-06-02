@@ -377,30 +377,17 @@ export const NewMessage = () => {
         }
     };
 
-    //Start -It is working code
-    //const checkValidSizeOfImage = (resizedImageAsBase64: string) => {
-    //  const stringLength = resizedImageAsBase64.length - 'data:image/png;base64,'.length;
-    //  const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
-    //  const sizeInKb = sizeInBytes / 1000;
-
-    //  if (sizeInKb <= 1024) return true;
-    //  else return false;
-    //};
-    //End - It is working code
-
-    //Start -Increase file upload limite to 5MB
     const checkValidSizeOfImage = (resizedImageAsBase64: string) => {
         const base64HeaderLength = 'data:image/png;base64,'.length;
         const stringLength = resizedImageAsBase64.length - base64HeaderLength;
 
-        // Calculate approximate bytes from base64 length
         const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
         const sizeInMb = sizeInBytes / (1024 * 1024);
 
         if (sizeInMb <= 5) return true; // 5 MB limit
         else return false;
     };
-    //End - Increase file upload limite to 5MB
+
     const handleImageSelection = () => {
         const file = fileInput.current?.files[0];
 
